@@ -19,10 +19,16 @@
 <body>
     <h1>User logged in successfully</h1>
     <h3>{{ Auth::user()->name }}</h3>
-    <h3>{{ Auth::user()->phone }}</h3>
+    <!-- <h3>{{ Auth::user()->phone }}</h3>
     <h3>{{ Auth::user()->email }}</h3>
-    <h3>{{ Auth::user()->country }}</h3>
-    
+    <h3>{{ Auth::user()->country }}</h3> -->
+       <?php
+        
+       ?>
+
+    <form action="{{ route('userdetails') }}" method="get">
+        <input type="submit" name="" id="" value="User Details" class="button">
+    </form>
 
     <form action="{{ route('logout') }}" method="get">
         <input type="submit" name="" id="" value="Logout" class="button">

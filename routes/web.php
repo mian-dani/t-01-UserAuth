@@ -25,9 +25,12 @@ Route::get('/register', [UserController::class, 'register'])->name('register');
 Route::post('/register', [UserController::class, 'register_user'])->name('register');
 });
 
+
+
 Route::group(['middleware'=>'auth'],function(){
     Route::get('/table',[UserController::class, 'table'])->name('table');
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::get('/userdetails', [UserController::class, 'userdetails'])->name('userdetails');
 });
 
 // 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
 
 class UserController extends Controller
 {
@@ -61,6 +63,23 @@ class UserController extends Controller
         \Session::flush();
         \Auth::logout();
         return redirect('register');
+    }
+
+    public function userdetails(){
+         
+        $id=  Auth::user()->id;
+        $email= Auth::user()->email;
+        
+        $users = User::where('id', $id)->get();
+        // foreach($u as $us){
+            
+        //     $name= $us->name;
+        //     dd($name);
+        // }
+        //  dd($users->name);
+        // return view('userdetails', compact('users'));
+        return view('userdetails')->with('users', $users);
+         
     }
 
 }
