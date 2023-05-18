@@ -12,7 +12,9 @@
         
     }
     .body{
-        
+        display:flex;
+        justify-content: center;
+        align-items: center;
         background: #303030;
     }
     th, td{

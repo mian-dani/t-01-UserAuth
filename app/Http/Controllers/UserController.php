@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use DataTables;
 
 
 class UserController extends Controller
@@ -80,6 +81,21 @@ class UserController extends Controller
         // return view('userdetails', compact('users'));
         return view('userdetails')->with('users', $users);
          
+    }
+
+    public function userdetailsyajra(Request $request){
+
+        $id=  Auth::user()->id;
+        
+
+             if ($request->ajax()) {
+                $data = User::query()->where('id', $id)->select(['name', 'email', 'phone', 'country']);
+                
+                 return DataTables::of($data)->addIndexColumn()->make(true);
+                
+             }
+              return view('userdetailsyajra');
+        
     }
 
 }

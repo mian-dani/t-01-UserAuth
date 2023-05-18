@@ -31,6 +31,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/table',[UserController::class, 'table'])->name('table');
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
     Route::get('/userdetails', [UserController::class, 'userdetails'])->name('userdetails');
+    Route::get('/userdetailsyajra', [UserController::class, 'userdetailsyajra'])->name('userdetailsyajra');
 });
 
 // 

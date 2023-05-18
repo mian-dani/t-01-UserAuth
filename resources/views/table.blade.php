@@ -30,6 +30,10 @@
         <input type="submit" name="" id="" value="User Details" class="button">
     </form>
 
+    <form action="{{ route('userdetailsyajra') }}" method="get">
+        <input type="submit" name="" id="" value="Details using yajra" class="button">
+    </form>
+
     <form action="{{ route('logout') }}" method="get">
         <input type="submit" name="" id="" value="Logout" class="button">
     </form>
