@@ -32,6 +32,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
     Route::get('/userdetails', [UserController::class, 'userdetails'])->name('userdetails');
     Route::get('/userdetailsyajra', [UserController::class, 'userdetailsyajra'])->name('userdetailsyajra');
+    Route::get('/countrygraph', [UserController::class, 'countrygraph'])->name('countrygraph');
 });
 
 // 

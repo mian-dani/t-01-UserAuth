@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 
 class UserController extends Controller
@@ -97,5 +98,28 @@ class UserController extends Controller
               return view('userdetailsyajra');
         
     }
+
+    public function countrygraph(){
+         
+             // Fetch the data needed for the graph
+             $usersByCountry = User::select('country', DB::raw('count(*) as total'))
+                 ->groupBy('country')
+                 ->get();
+         
+             // Prepare the data in the required format for the graph
+             $data = [];
+             foreach ($usersByCountry as $user) {
+                 $data[] = [
+                     'label' => $user->country,
+                     'y' => $user->total,
+                 ];
+             }
+         
+             // Pass the data to the view
+             return view('countrygraph', compact('data'));
+         }
+         
+        
+    
 
 }
