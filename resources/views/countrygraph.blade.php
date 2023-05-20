@@ -12,8 +12,29 @@
 <body>
 
     <div id="chartContainer" style="height: 300px; width: 100%;"></div>
-    
+
     <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            var data = @json($data);
+
+            var options = {
+                data: [{
+                    type: "column",
+                    dataPoints: data,
+                    click: function(e) {
+                        var country = e.dataPoint.label;
+                        window.location.href = '/chartuserdetail?country=' + country;
+                    }
+                }]
+            };
+
+            var chart = new CanvasJS.Chart("chartContainer", options);
+            chart.render();
+        });
+        </script>
+
+    
+    <!-- <script>
     window.addEventListener('DOMContentLoaded', (event) => {
         // Get the data passed from the controller
         var data = @json($data);
@@ -30,7 +51,7 @@
         var chart = new CanvasJS.Chart("chartContainer", options);
         chart.render();
     });
-    </script>
+    </script> -->
 
     
 </body>

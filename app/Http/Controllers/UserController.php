@@ -119,7 +119,17 @@ class UserController extends Controller
              return view('countrygraph', compact('data'));
          }
          
-        
+    public function chartuserdetail(Request $request){
+        $country = $request->query('country');
+        $users = User::where('country', $country)->get();
+        $data = [
+            'users' => $users
+        ];
+        if ($request->expectsJson()) {
+            return response()->json($data);
+        }
+        return view('chartuserdetail', compact('data'));
+    }
     
 
 }
