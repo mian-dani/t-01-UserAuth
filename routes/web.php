@@ -23,6 +23,8 @@ Route::get('/login',[UserController::class, 'login'])->name('login');
 Route::post('/login',[UserController::class, 'login_user'])->name('login');
 Route::get('/register', [UserController::class, 'register'])->name('register');
 Route::post('/register', [UserController::class, 'register_user'])->name('register');
+Route::get('/allusers', [UserController::class, 'allusers'])->name('allusers');
+
 });
 
 
@@ -34,6 +36,7 @@ Route::group(['middleware'=>'auth'],function(){
     Route::get('/userdetailsyajra', [UserController::class, 'userdetailsyajra'])->name('userdetailsyajra');
     Route::get('/countrygraph', [UserController::class, 'countrygraph'])->name('countrygraph');
     Route::get('/chartuserdetail', [UserController::class, 'chartuserdetail'])->name('chartuserdetail');
+    Route::get('/dailyuserregistration', [UserController::class, 'dailyuserregistration'])->name('dailyuserregistration');
 });
 
 // 

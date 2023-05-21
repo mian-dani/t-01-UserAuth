@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 
 class UserController extends Controller
@@ -130,6 +131,50 @@ class UserController extends Controller
         }
         return view('chartuserdetail', compact('data'));
     }
+    
+
+    public function allusers(Request $request){
+        
+        // $query = User::query();
+        // $users = $query->select(['name', 'email', 'phone', 'country'])->get();
+        // // $jsonData = $users->toJson();
+        // return view('allusers', compact('users'));
+        
+        if ($request->ajax()) {
+            $query = User::query();
+    
+            // Apply filters
+            if ($request->has('country')) {
+                $query->where('country', $request->country);
+            }
+    
+            $users = $query->get();
+    
+            return DataTables::of($users)
+                ->addIndexColumn()
+                ->make(true);
+        }
+    
+        return view('allusers', compact(''));
+    }
+
+    public function dailyuserregistration(){
+        $startDate = Carbon::now()->subDays(30); // Retrieve data for the last 7 days
+        $endDate = Carbon::now();
+
+        $userRegistrations = User::select('created_at')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->created_at->format('Y-m-d');
+            })
+            ->map(function ($item) {
+                return $item->count();
+            });
+            
+        return view('dailyuserregistration', compact('userRegistrations'));
+    }
+
     
 
 }
