@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Crud;
 use Illuminate\Support\Facades\Auth;
 use DataTables;
 use Illuminate\Support\Facades\DB;
@@ -174,6 +175,84 @@ class UserController extends Controller
             
         return view('dailyuserregistration', compact('userRegistrations'));
     }
+
+    public function crudfunctions()
+    {
+        $users = Crud::query()->get();
+        return view('crudfunctions', compact('users'));
+    }
+
+    public function createuser(Request $request)
+    {
+        return view('createuser');
+        // $user = User::create($request->all());
+        // return response()->json(['data' => $user], 201);
+    }
+
+    public function useradded(Request $request){
+       
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:20',
+            'description' => 'required|string',
+        ]);
+
+        // Create a new user instance
+        $user = new Crud();
+        $user->name = $validatedData['name'];
+        $user->description = $validatedData['description'];
+        $ipAddress = $request->ip();
+        $user->ip = $ipAddress;
+
+        // Save the user to the database
+        $user->save();
+        return redirect()->back()->with('success', 'User created successfully');
+        
+    }
+
+    public function cruddelete($id){
+        $user = Crud::findOrFail($id);
+        $user->delete();
+        return ("User deleted successfully Go back and Refresh");
+        // return redirect()->route('')->with('success', 'User deleted successfully.')
+    }
+
+    public function show($id)
+    {
+        // $user = Crud::findOrFail($id);
+        // return response()->json(['data' => $user]);
+        $user = Crud::query($id)->where('id', $id)->select(['name', 'description'])->first();
+
+        return view('crudview', compact('user'));
+    }
+
+    public function crudupdate(Request $request, $id){
+  
+        // Validate the form data
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+        ]);
+
+        // Find the user by ID
+        $user = Crud::findOrFail($id);
+
+        // Update the user data
+        $user->name = $validatedData['name'];
+        $user->description = $validatedData['description'];
+        $user->save();
+        return ("Data Updated successfully");
+        // Redirect to the view page or wherever you want
+        // return redirect()->route('', $user->id)->with('success', 'User updated successfully');
+  
+    }
+
+    public function crudedit(Request $request, $id){
+        $user = Crud::query($id)->where('id', $id)->select(['id', 'name', 'description'])->first();
+
+        return view('crudedit', compact('user'));
+    }
+
 
     
 
