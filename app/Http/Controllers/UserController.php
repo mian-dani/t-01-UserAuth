@@ -145,6 +145,10 @@ class UserController extends Controller
             if ($request->has('country')) {
                 $query->where('country', $request->country)->select(['name', 'email', 'phone', 'country']);
             }
+
+            if ($request->has('date')) {
+                $query->whereDate('created_at', $request->date)->select(['name', 'email', 'phone', 'country']);
+            }
     
             $users = $query->get();
 

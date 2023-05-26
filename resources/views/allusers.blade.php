@@ -17,7 +17,7 @@
         <div class="row mb-3">
             <div class="col-md-4">
                 <label for="date_filter">Date Filter:</label>
-                <input type="date" id="date_filter" class="form-control">
+                <input type="date" id="datefilter" class="form-control" name="datefilter">
             </div>
             <div class="col-md-4">
                 <label for="country_filter">Country Filter:</label>
@@ -62,12 +62,14 @@
             });
 
             $('#filterbtn').on('click', function () {
+                
                // table.clear();
                 $.ajax({
                     url: 'allusers',
                     type: 'GET',
                     data: {
-                        country: $('#countryfilter').val()
+                        country: $('#countryfilter').val(),
+                        date: $('#datefilter').val()
                     },
                     success: function (response){
                         
