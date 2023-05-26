@@ -20,9 +20,9 @@ Route::get('/', function () {
 
 // Route::group(['middleware'=>'guest'],function(){
 Route::get('/login',[UserController::class, 'login'])->name('login');
-Route::post('/login',[UserController::class, 'login_user'])->name('login');
+Route::post('/loginuser',[UserController::class, 'loginuser'])->name('loginuser');
 Route::get('/register', [UserController::class, 'register'])->name('register');
-Route::post('/register', [UserController::class, 'register_user'])->name('register');
+Route::post('/registeruser', [UserController::class, 'registeruser'])->name('registeruser');
 Route::get('/allusers', [UserController::class, 'allusers'])->name('allusers');
 
 // });
@@ -53,8 +53,8 @@ Route::put('/crudupdate/{id}', [UserController::class, 'crudupdate'])->name('cru
 Route::delete('/cruddelete/{id}', [UserController::class, 'cruddelete'])->name('cruddelete');
 
 
-Route::post('/users', [UserController::class, 'store'])->name('users.store');
-Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+// Route::post('/users', [UserController::class, 'store'])->name('users.store');
+// Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
 
 
 

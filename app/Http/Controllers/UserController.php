@@ -17,7 +17,7 @@ class UserController extends Controller
          return view('login');
     }
 
-    public function login_user(Request $request){
+    public function loginuser(Request $request){
         $request->validate([
             'email' => 'required',
             'password' => 'required',
@@ -34,7 +34,7 @@ class UserController extends Controller
         return view('register');
     }
 
-    public function register_user(Request $request){
+    public function registeruser(Request $request){
         //validation
         $request->validate([
             'name'=>'required',
@@ -136,13 +136,9 @@ class UserController extends Controller
 
     public function allusers(Request $request){
         
-        // $query = User::query();
-        // $users = $query->select(['name', 'email', 'phone', 'country'])->get();
-        // // $jsonData = $users->toJson();
-        // return view('allusers', compact('users'));
-        
         if ($request->ajax()) {
             $query = User::query();
+            
     
             // Apply filters
             if ($request->has('country')) {
@@ -155,8 +151,8 @@ class UserController extends Controller
                 ->addIndexColumn()
                 ->make(true);
         }
-    
-        return view('allusers', compact(''));
+        
+        return view('allusers');
     }
 
     public function dailyuserregistration(){

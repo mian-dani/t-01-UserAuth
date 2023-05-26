@@ -11,7 +11,10 @@
 </head>
 <body>
 
-    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+    <div style=" width:100%;display:flex; justify-content:center; align-items:center; flex-direction:column">
+    <h2>Country Wise Graph Showing Users per Country</h2>
+    <div id="chartContainer" style="height: 300px; width: 60%; margin-top:1%"></div>
+    </div>
 
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {

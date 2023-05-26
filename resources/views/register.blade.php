@@ -43,7 +43,7 @@
 @include('navbar')
 <body class="body">
 <!-- @include('navbar') -->
-        <form action="{{ route('register') }}" method="post">
+        <form action="{{ route('registeruser') }}" method="post">
             @csrf
             @method('post')
             <!-- <label for="">Name</label> -->

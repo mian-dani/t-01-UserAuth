@@ -42,7 +42,7 @@
 <body class="parent">
     @include('navbar')
 
-        <form action="{{ route('login') }}" method="post" >
+        <form action="{{ route('loginuser') }}" method="post" >
             @csrf
             @method('post')
             
