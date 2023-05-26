@@ -40,12 +40,16 @@
                     <th>Country</th>
                 </tr>
             </thead>
+            <tbody>
+            </tbody>
             
     </table>
 
+    
     <script>
+        var table;
         $(function () {
-           var table= $('#user-table').DataTable({
+            table= $('#user-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('allusers') }}",
@@ -57,86 +61,41 @@
                 ]
             });
 
-            $('#filterbtn').on('click', function (e) {
-                e.preventDefault(); // Prevent the form from submitting
-                var country= $('#countryfilter').val();
-                
-
-                table.clear(); // Redraw the DataTable to apply the filters
+            $('#filterbtn').on('click', function () {
+               // table.clear();
                 $.ajax({
-                    url: '/allusers',
-                    type: 'get',
+                    url: 'allusers',
+                    type: 'GET',
                     data: {
-                        country: country
+                        country: $('#countryfilter').val()
                     },
                     success: function (response){
-                        table.rows.add(response.data).draw();
+                        
+                         table.clear();
+                         table.clear().destroy();
+                         $('#user-table').empty();
+                            
+                            // Reinitialize the DataTable with the updated data
+                            table = $('#user-table').DataTable({
+                                data: response.data,
+                                columns: [
+                                    {data: 'name', name: 'name'},
+                                    {data: 'email', name: 'email'},
+                                    {data: 'phone', name: 'phone'},
+                                    {data: 'country', name: 'country'},
+                                ]
+                            });
                     },
                     error: function(xhr, status,error){
                         console.log(error);
                     }
                 });
             });
-
         });
     </script>
         
 
-    <!-- <script>
-        $(function () {
-            $('#user-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('allusers') }}",
-                columns: [
-                    {data: 'name', name: 'name'},
-                    {data: 'email', name: 'email'},
-                    {data: 'phone', name: 'phone'},
-                    {data: 'country', name: 'country'},
-                ]
-            });
-            $('#filterbtn').on('submit', function (e) {
-                e.preventDefault(); // Prevent the form from submitting
-
-                table.draw(); // Redraw the DataTable to apply the filters
-            });
-        });
-    </script> -->
-        
-
-<!-- <script>
-        $(document).ready(function () {
-            
-            var table = $('#user-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: "{{ route('allusers') }}",
-                    data: function (data) {
-                        data.country = $('#countryfilter').val(); // Get the value of the country filter input
-                    }
-                },
-                columns: [
-                    {data: 'name', name: 'name'},
-                    {data: 'email', name: 'email'},
-                    {data: 'phone', name: 'phone'},
-                    {data: 'country', name: 'country'},
-                ]
-            });
-            
-            
-            $('#filterbtn').on('submit', function (e) {
-                e.preventDefault(); // Prevent the form from submitting
-
-                table.draw(); // Redraw the DataTable to apply the filters
-            });
-            
-        });
-   
-
-        
-    </script> -->
-
+    
 </body>
 </html>
 

@@ -136,17 +136,18 @@ class UserController extends Controller
 
     public function allusers(Request $request){
         
+        
         if ($request->ajax()) {
             $query = User::query();
             
-    
+            
             // Apply filters
             if ($request->has('country')) {
-                $query->where('country', $request->country);
+                $query->where('country', $request->country)->select(['name', 'email', 'phone', 'country']);
             }
     
             $users = $query->get();
-    
+
             return DataTables::of($users)
                 ->addIndexColumn()
                 ->make(true);
@@ -154,6 +155,8 @@ class UserController extends Controller
         
         return view('allusers');
     }
+
+   
 
     public function dailyuserregistration(){
         $startDate = Carbon::now()->subDays(30); // Retrieve data for the last 7 days
