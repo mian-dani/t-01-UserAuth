@@ -22,11 +22,22 @@ class UserController extends Controller
             'email' => 'required',
             'password' => 'required',
         ]);
+        
 
         //login code
         if(\Auth::attempt($request->only('email','password'))){
+            $user = Auth::user();
+            $success['token'] = $user->createToken('MyApp')->plainTextToken;
+            $success['name'] = $user->name;
+            $response = [
+                'success'=> true,
+                'data' => $success,
+                'message' => "user registered successfully"
+            ];
+            return response()->json($response, 200);
             return redirect('table');
         }
+
         return redirect('login')->withError('Login not successful');
     }
 
@@ -49,6 +60,17 @@ class UserController extends Controller
             'phone'=>$request->phone,
             'country'=>$request->country,
         ]);
+        $user = Auth::user();
+        $success['token'] = $user->createToken('MyApp')->plainTextToken;
+        $success['name'] = $user->name;
+
+        $response = [
+            'success'=> true,
+            'data' => $success,
+            'message' => "user registered successfully"
+        ];
+
+        return response()->json($response, 200);
 
         //if user successfully registered then also login
         if(\Auth::attempt($request->only('email','password'))){
@@ -142,12 +164,14 @@ class UserController extends Controller
             
             
             // Apply filters
-            if ($request->has('country')) {
+            if ($request->filled('country')) {
                 $query->where('country', $request->country)->select(['name', 'email', 'phone', 'country']);
             }
 
-            if ($request->has('date')) {
-                $query->whereDate('created_at', $request->date)->select(['name', 'email', 'phone', 'country']);
+            if ($request->filled('startdate') && $request->filled('enddate')) {
+                $start_date= $request->startdate;
+                $end_date= $request->enddate;
+                $query->whereBetween('created_at', [$start_date, $end_date])->select(['name', 'email', 'phone', 'country']);
             }
     
             $users = $query->get();
@@ -179,20 +203,39 @@ class UserController extends Controller
         return view('dailyuserregistration', compact('userRegistrations'));
     }
 
-    public function crudfunctions()
+    public function crudfunctions(Request $request)
     {
-        $users = Crud::query()->get();
-        return view('crudfunctions', compact('users'));
+    
+        if ($request->ajax()) {
+            $query = Crud::query();
+            $users = $query->get();
+
+            return DataTables::of($users)->addIndexColumn()
+                ->addColumn('action', function ($user) {
+                     return '
+                        <button onclick="viewDataBtn" id="viewDataBtn" class="btn btn-view">View</button>
+                        <button  class="btn btn-edit">Edit</button>
+                        <button onclick="deleteClicked(this)" id="deleteCrud" type="submit" class="btn btn-delete">Delete</button>
+                    ';
+                })->rawColumns(['action'])
+                ->make(true);
+
+
+                // ->addIndexColumn()
+                // ->make(true);
+        }
+    
+        return view('crudfunctions') ;
     }
 
-    public function createuser(Request $request)
-    {
-        return view('createuser');
-        // $user = User::create($request->all());
-        // return response()->json(['data' => $user], 201);
-    }
+    // public function createuser(Request $request)
+    // {
+    //     return view('createuser');
+    //     // $user = User::create($request->all());
+    //     // return response()->json(['data' => $user], 201);
+    // }
 
-    public function useradded(Request $request){
+    public function create(Request $request){
        
         // Validate the incoming request data
         $validatedData = $request->validate([
@@ -213,12 +256,41 @@ class UserController extends Controller
         
     }
 
-    public function cruddelete($id){
-        $user = Crud::findOrFail($id);
-        $user->delete();
-        return ("User deleted successfully Go back and Refresh");
-        // return redirect()->route('')->with('success', 'User deleted successfully.')
+    public function delete(Request $request, $id){
+        
+        if ($request->ajax()) {
+            $user = User::find($id);
+            if ($user) {
+                $user->delete();
+                return response()->json(['success' => true]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'User not found.']);
+            }
+        } else {
+            return redirect()->back()->with('error', 'Invalid request.');
+        }
+
     }
+
+    // public function cruddelete(Request $request, $id){
+    //     // $user = Crud::findOrFail($id);
+    //     // $user->delete();
+    //     // return 
+    //     // // return redirect()->back()->with('success', 'User deleted successfully');
+        
+    //     if ($request->ajax()) {
+    //         $user = User::find($id);
+    //         if ($user) {
+    //             $user->delete();
+    //             return response()->json(['success' => true]);
+    //         } else {
+    //             return response()->json(['success' => false, 'message' => 'User not found.']);
+    //         }
+    //     } else {
+    //         return redirect()->back()->with('error', 'Invalid request.');
+    //     }
+
+    // }
 
     public function show($id)
     {
@@ -254,6 +326,45 @@ class UserController extends Controller
         $user = Crud::query($id)->where('id', $id)->select(['id', 'name', 'description'])->first();
 
         return view('crudedit', compact('user'));
+    }
+
+    public function crudngraphs(){
+
+        //Daily user registration
+        $startDate = Carbon::now()->subDays(30); // Retrieve data for the last 7 days
+        $endDate = Carbon::now();
+
+        $userRegistrations = User::select('created_at')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->created_at->format('Y-m-d');
+            })
+            ->map(function ($item) {
+                return $item->count();
+            });
+
+            //country graph data 
+             
+             $usersByCountry = User::select('country', DB::raw('count(*) as total'))
+                 ->groupBy('country')
+                 ->get();
+         
+             // Prepare the data in the required format for the graph
+             $data = [];
+             foreach ($usersByCountry as $user) {
+                 $data[] = [
+                     'label' => $user->country,
+                     'y' => $user->total,
+                 ];
+             }
+
+             // crud functions view 
+             $users = Crud::query()->get();
+            
+        return view('crudngraphs', compact('userRegistrations', 'data', 'users'));
+
+        
     }
 
 

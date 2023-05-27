@@ -17,7 +17,11 @@
         <div class="row mb-3">
             <div class="col-md-4">
                 <label for="date_filter">Date Filter:</label>
-                <input type="date" id="datefilter" class="form-control" name="datefilter">
+                <input type="date" id="startdatefilter" class="form-control" name="startdatefilter">
+            </div>
+            <div class="col-md-4">
+                <label for="date_filter">Date Filter:</label>
+                <input type="date" id="enddatefilter" class="form-control" name="enddatefilter">
             </div>
             <div class="col-md-4">
                 <label for="country_filter">Country Filter:</label>
@@ -33,7 +37,6 @@
     <table id="user-table" class="table">
             <thead>
                 <tr>
-                
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -69,7 +72,8 @@
                     type: 'GET',
                     data: {
                         country: $('#countryfilter').val(),
-                        date: $('#datefilter').val()
+                        startdate: $('#startdatefilter').val(),
+                        enddate: $('#enddatefilter').val()
                     },
                     success: function (response){
                         

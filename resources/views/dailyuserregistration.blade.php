@@ -8,7 +8,14 @@
     <title>Document</title>
 </head>
 <body>
-    <div style="width: 80%"><canvas id="userRegistrationGraph"></canvas></div>
+
+    <div style="width:100%;display:flex; justify-content:center; align-items:center; flex-direction:column">
+        <div style="height: 300px; width: 60%; margin:5% 0%; display:flex; justify-content:center; align-items:center; flex-direction:column">
+            <h2>Dialy registered users graph</h2>
+            <canvas  id="userRegistrationGraph">
+            </canvas>
+        </div>
+    </div>
     
 
     <script>

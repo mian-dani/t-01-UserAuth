@@ -43,18 +43,20 @@ Route::get('/allusers', [UserController::class, 'allusers'])->name('allusers');
 
 
 
-
-
 Route::get('/crudfunctions', [UserController::class, 'crudfunctions'])->name('crudfunctions');
 Route::get('/createuser', [UserController::class, 'createuser'])->name('createuser');
 Route::post('/useradded', [UserController::class, 'useradded'])->name('useradded');
 Route::get('/crudedit/{id}', [UserController::class, 'crudedit'])->name('crudedit');
+Route::get('/crudshow/{id}', [UserController::class, 'crudedit'])->name('crudshow'); // wese hi bnaya ha abhi
 Route::put('/crudupdate/{id}', [UserController::class, 'crudupdate'])->name('crudupdate');
 Route::delete('/cruddelete/{id}', [UserController::class, 'cruddelete'])->name('cruddelete');
 
 
-// Route::post('/users', [UserController::class, 'store'])->name('users.store');
-// Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+Route::post('/users', [UserController::class, 'store'])->name('users.store');
+Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+Route::get('/users/{id}', [UserController::class, 'edit'])->name('users.edit');
 
 
-
+Route::get('/crudngraphs', [UserController::class, 'crudngraphs'])->name('crudngraphs');
+Route::post('/users', [UserController::class, 'create'])->name('users.create');
+Route::delete('/deletecrud/{id}', [UserController::class, 'delete'])->name('deletecrud');
