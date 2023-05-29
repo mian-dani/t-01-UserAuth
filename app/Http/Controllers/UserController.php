@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use DataTables;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 
 class UserController extends Controller
 {
@@ -53,13 +54,17 @@ class UserController extends Controller
             'password'=>'required',
             'phone'=>'required',
         ]);
-        User::create([
+        $registeredUser = User::create([
             'name'=>$request->name,
             'email'=>$request->email,
             'password'=> \Hash::make($request->password),
             'phone'=>$request->phone,
             'country'=>$request->country,
         ]);
+        
+        Mail::to($request->input('email'))->send(new WelcomeMail($request->input('name')));
+
+
         $user = Auth::user();
         $success['token'] = $user->createToken('MyApp')->plainTextToken;
         $success['name'] = $user->name;
@@ -215,7 +220,7 @@ class UserController extends Controller
                      return '
                         <button onclick="viewDataBtn" id="viewDataBtn" class="btn btn-view">View</button>
                         <button  class="btn btn-edit">Edit</button>
-                        <button onclick="deleteClicked(this)" id="deleteCrud" type="submit" class="btn btn-delete">Delete</button>
+                        <button onclick="deleteClicked(' . $user->id . ')"  id="deleteCrud" type="button" class="btn btn-delete">Delete</button>
                     ';
                 })->rawColumns(['action'])
                 ->make(true);
@@ -256,27 +261,7 @@ class UserController extends Controller
         
     }
 
-    public function delete(Request $request, $id){
-        
-        if ($request->ajax()) {
-            $user = User::find($id);
-            if ($user) {
-                $user->delete();
-                return response()->json(['success' => true]);
-            } else {
-                return response()->json(['success' => false, 'message' => 'User not found.']);
-            }
-        } else {
-            return redirect()->back()->with('error', 'Invalid request.');
-        }
-
-    }
-
-    // public function cruddelete(Request $request, $id){
-    //     // $user = Crud::findOrFail($id);
-    //     // $user->delete();
-    //     // return 
-    //     // // return redirect()->back()->with('success', 'User deleted successfully');
+    // public function delete(Request $request, $id){
         
     //     if ($request->ajax()) {
     //         $user = User::find($id);
@@ -291,6 +276,15 @@ class UserController extends Controller
     //     }
 
     // }
+
+    public function deletecrud($id){
+      
+        $user = Crud::findOrFail($id);
+        
+        $user->delete();
+        return response()->json(['success' => true]);
+
+    }
 
     public function show($id)
     {
@@ -367,7 +361,9 @@ class UserController extends Controller
         
     }
 
-
+    public function email(){
+        return view('email');
+    }
     
 
 }

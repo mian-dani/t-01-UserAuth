@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
@@ -138,12 +139,28 @@
         var table;
 
         function deleteClicked(userId) {
-            
-            console.log(userId);
+            console.log("i am clicked");
+            var csrfToken = "{{ csrf_token() }}";
+            console.log(csrfToken);
+            $.ajax({
+                 url: '/deletecrud/' + userId,
+                
+                
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                },
+                success: function(response) {
+                    console.log("Response is positive");
+                    $('#user-table').DataTable().row($(this).closest('tr')).remove().draw();
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.log(error);
+                }
+            });
             
         }
-        
-
         
                 $(function () {
                      table= $('#user-table').DataTable({

@@ -51,6 +51,9 @@
     
     <script>
         var table;
+
+        
+
         $(function () {
             table= $('#user-table').DataTable({
                 processing: true,

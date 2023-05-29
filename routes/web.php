@@ -59,4 +59,6 @@ Route::get('/users/{id}', [UserController::class, 'edit'])->name('users.edit');
 
 Route::get('/crudngraphs', [UserController::class, 'crudngraphs'])->name('crudngraphs');
 Route::post('/users', [UserController::class, 'create'])->name('users.create');
-Route::delete('/deletecrud/{id}', [UserController::class, 'delete'])->name('deletecrud');
+Route::delete('/users/{id}', [UserController::class, 'delete'])->name('users.delete');
+Route::delete(`/deletecrud/{id}`, [UserController::class, 'deletecrud'])->name('deletecrud');
+Route::get("/email", [UserController::class, 'email'])->name('email');
