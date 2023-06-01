@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\FirebaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,3 +63,13 @@ Route::post('/users', [UserController::class, 'create'])->name('users.create');
 Route::delete('/users/{id}', [UserController::class, 'delete'])->name('users.delete');
 Route::delete(`/deletecrud/{id}`, [UserController::class, 'deletecrud'])->name('deletecrud');
 Route::get("/email", [UserController::class, 'email'])->name('email');
+
+
+
+// route for firebase image upload 
+Route::post('/uploadimage', [FirebaseController::class, 'uploadimage'])->name('uploadimage');
+Route::get('/uploadfirebase', [FirebaseController::class, 'uploadfirebase'])->name('uploadfirebase');
+
+// routes for country names api
+Route::post("/getcountries", [UserController::class, 'getcountries'])->name('getcountries');
+Route::get("/getcountriesview", [UserController::class, 'getcountriesview'])->name('getcountriesview');

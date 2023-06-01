@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Jobs\SendEmailJob;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Crud;
@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeMail;
+use App\Jobs\WelcomeEmail;
+
+
+use Illuminate\Support\Facades\Queue;
 
 class UserController extends Controller
 {
@@ -28,6 +32,10 @@ class UserController extends Controller
         //login code
         if(\Auth::attempt($request->only('email','password'))){
             $user = Auth::user();
+             // Inside your UserController or other relevant code
+             $user = User::find(1); // Get the user instance
+
+             Queue::push(new WelcomeEmail($user));
             $success['token'] = $user->createToken('MyApp')->plainTextToken;
             $success['name'] = $user->name;
             $response = [
@@ -35,6 +43,10 @@ class UserController extends Controller
                 'data' => $success,
                 'message' => "user registered successfully"
             ];
+            
+
+           
+
             return response()->json($response, 200);
             return redirect('table');
         }
@@ -62,20 +74,24 @@ class UserController extends Controller
             'country'=>$request->country,
         ]);
         
-        Mail::to($request->input('email'))->send(new WelcomeMail($request->input('name')));
+        
+        // $user = User::find(1); // Get the user instance
+
+        // // Send the email
+        // Mail::to($user->email)->send(new WelcomeMail($user));
 
 
         $user = Auth::user();
-        $success['token'] = $user->createToken('MyApp')->plainTextToken;
-        $success['name'] = $user->name;
+        // $success['token'] = $user->createToken('MyApp')->plainTextToken;
+        // $success['name'] = $user->name;
 
-        $response = [
-            'success'=> true,
-            'data' => $success,
-            'message' => "user registered successfully"
-        ];
-
-        return response()->json($response, 200);
+        // $response = [
+        //     'success'=> true,
+        //     'data' => $success,
+        //     'message' => "user registered successfully"
+        // ];
+        Mail::to($request->input('email'))->send(new WelcomeMail($request->input('name')));
+        // return response()->json($response, 200);
 
         //if user successfully registered then also login
         if(\Auth::attempt($request->only('email','password'))){
@@ -318,7 +334,6 @@ class UserController extends Controller
 
     public function crudedit(Request $request, $id){
         $user = Crud::query($id)->where('id', $id)->select(['id', 'name', 'description'])->first();
-
         return view('crudedit', compact('user'));
     }
 
@@ -364,6 +379,38 @@ class UserController extends Controller
     public function email(){
         return view('email');
     }
+
+    public function getcountries(Request $request){
+
+                $url = 'https://restcountries.com/v3.1/all';
+
+        $response = file_get_contents($url);
+        
+        if ($response === false) {
+            // Handle error
+            // Error handling logic goes here
+        } else {
+            // Process the response
+            $countries = json_decode($response, true);
+
+            foreach ($countries as $country){
+                $name[] = $country['name']['common'];
+                dd($name);
+            }
+            
+
+            
+        }
+
+    }
+        
+        
+    
+    
+    public function getcountriesview(){
+        return view('getcountries');
+    }
+
     
 
 }

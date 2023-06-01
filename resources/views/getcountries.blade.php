@@ -7,7 +7,11 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Welcome at our app</h1>
-    <p>Your account has been created successfully</p>
+    <form action="{{ route('getcountries') }}" method="POST">
+        @csrf
+        
+        <button type="submit">Get Countries</button>
+    </form>
+
 </body>
 </html>

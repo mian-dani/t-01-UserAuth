@@ -139,13 +139,12 @@
         var table;
 
         function deleteClicked(userId) {
+            console.log(userId);
             console.log("i am clicked");
             var csrfToken = "{{ csrf_token() }}";
             console.log(csrfToken);
             $.ajax({
                  url: '/deletecrud/' + userId,
-                
-                
                 type: 'DELETE',
                 data: {
                     _token: '{{ csrf_token() }}',
