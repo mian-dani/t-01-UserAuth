@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cruds', function (Blueprint $table) {
+        Schema::create('countries_names', function (Blueprint $table) {
             $table->id();
-            $table->string('name',20);
-            $table->string('description',200);
-            $table->string('ip',40);
+            $table->string('name');
+            $table->string('currency');
+            $table->string('symbol');
+            $table->string('flagurl');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cruds');
+        Schema::dropIfExists('countries_names');
     }
 };

@@ -46,7 +46,7 @@ Route::get('/allusers', [UserController::class, 'allusers'])->name('allusers');
 
 Route::get('/crudfunctions', [UserController::class, 'crudfunctions'])->name('crudfunctions');
 Route::get('/createuser', [UserController::class, 'createuser'])->name('createuser');
-Route::post('/useradded', [UserController::class, 'useradded'])->name('useradded');
+//Route::post('/useradded', [UserController::class, 'useradded'])->name('useradded');
 Route::get('/crudedit/{id}', [UserController::class, 'crudedit'])->name('crudedit');
 Route::get('/crudshow/{id}', [UserController::class, 'crudedit'])->name('crudshow'); // wese hi bnaya ha abhi
 Route::put('/crudupdate/{id}', [UserController::class, 'crudupdate'])->name('crudupdate');
@@ -58,16 +58,20 @@ Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
 Route::get('/users/{id}', [UserController::class, 'edit'])->name('users.edit');
 
 
-Route::get('/crudngraphs', [UserController::class, 'crudngraphs'])->name('crudngraphs');
-Route::post('/users', [UserController::class, 'create'])->name('users.create');
-Route::delete('/users/{id}', [UserController::class, 'delete'])->name('users.delete');
-Route::delete(`/deletecrud/{id}`, [UserController::class, 'deletecrud'])->name('deletecrud');
+
+
 Route::get("/email", [UserController::class, 'email'])->name('email');
 
+// these routes are to perform crud operatons on yajra table
+Route::post('/users', [UserController::class, 'create'])->name('users.create');
+Route::get("/deletecrud/{id}", [UserController::class, 'delete'])->name('deletecrud');
+Route::get("/fetchuserdata/{id}", [UserController::class, 'fetchuserdata'])->name('fetchuserdata');
+Route::post("/updateuser/{id}", [UserController::class, 'updateuser'])->name('updateuser');
+Route::get('/crudngraphs', [UserController::class, 'crudngraphs'])->name('crudngraphs');
 
 
 // route for firebase image upload 
-Route::post('/uploadimage', [FirebaseController::class, 'uploadimage'])->name('uploadimage');
+Route::get('/save-url', [FirebaseController::class, 'saveUrl']);
 Route::get('/uploadfirebase', [FirebaseController::class, 'uploadfirebase'])->name('uploadfirebase');
 
 // routes for country names api

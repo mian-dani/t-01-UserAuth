@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeMail;
 use App\Jobs\WelcomeEmail;
+use App\Models\Country;
+
 
 
 use Illuminate\Support\Facades\Queue;
@@ -234,8 +236,8 @@ class UserController extends Controller
             return DataTables::of($users)->addIndexColumn()
                 ->addColumn('action', function ($user) {
                      return '
-                        <button onclick="viewDataBtn" id="viewDataBtn" class="btn btn-view">View</button>
-                        <button  class="btn btn-edit">Edit</button>
+                        <button onclick="viewClicked(' . $user->id . ')" id="viewUserBtn" class="btn btn-view">View</button>
+                        <button onclick="editClicked(' . $user->id . ')" id="editUserBtn" class="btn btn-edit">Edit</button>
                         <button onclick="deleteClicked(' . $user->id . ')"  id="deleteCrud" type="button" class="btn btn-delete">Delete</button>
                     ';
                 })->rawColumns(['action'])
@@ -277,30 +279,53 @@ class UserController extends Controller
         
     }
 
-    // public function delete(Request $request, $id){
-        
-    //     if ($request->ajax()) {
-    //         $user = User::find($id);
-    //         if ($user) {
-    //             $user->delete();
-    //             return response()->json(['success' => true]);
-    //         } else {
-    //             return response()->json(['success' => false, 'message' => 'User not found.']);
-    //         }
-    //     } else {
-    //         return redirect()->back()->with('error', 'Invalid request.');
-    //     }
+    
 
-    // }
-
-    public function deletecrud($id){
+    public function delete($id){
       
         $user = Crud::findOrFail($id);
         
         $user->delete();
-        return response()->json(['success' => true]);
+        return redirect()->back()->with('success', 'User deleted');
 
     }
+
+    public function fetchuserdata($id){
+        
+                $user = Crud::find($id);
+
+                $data = [
+                    'name' => $user->name,
+                    'description' => $user->description,
+                ];
+                
+                return response()->json($data);
+            
+    }
+
+    public function updateuser(Request $request, $id)
+        {
+            // $userId = $request->input('id');
+            $newName = $request->input('name');
+            $newDescription = $request->input('description');
+
+            // Find the user by ID
+            $user = Crud::find($id);
+
+            // if (!$user) {
+            //     // User not found, handle the error
+            //     return response()->json(['error' => 'User not found'], 404);
+            // }
+
+            // Update the user data
+            $user->name = $newName;
+            $user->description = $newDescription;
+            $user->save();
+
+            // Return a success response
+            return redirect()->back()->with('success', 'User deleted');
+        }
+
 
     public function show($id)
     {
@@ -394,8 +419,28 @@ class UserController extends Controller
             $countries = json_decode($response, true);
 
             foreach ($countries as $country){
-                $name[] = $country['name']['common'];
-                dd($name);
+                $name = $country['name']['common'];
+
+                if(isset($country['currencies'])){
+                    $changingCurrency = key($country['currencies']);
+                    $currency = $country['currencies'][$changingCurrency]['name'];
+                    if(isset($country['currencies'][$changingCurrency]['symbol'])){
+                        $symbol = $country['currencies'][$changingCurrency]['symbol'];
+                    }
+                    
+                }else{
+                    continue;
+                }
+                
+                $flagUrl= $country['flags']['png'];
+
+                $countryModel = new Country();
+                $countryModel->name = $name;
+                $countryModel->currency = $currency;
+                $countryModel->symbol = $symbol;
+                $countryModel->flagurl = $flagUrl;
+                $countryModel->save();
+            
             }
             
 

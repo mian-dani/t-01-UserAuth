@@ -116,17 +116,47 @@
 
         <div id="createUserPopup" style="display: none;">
             <h2>User Form</h2>
-            <form method="POST" action="{{ route('useradded') }}">
+            <form >
                 @csrf
                 <div class="form-group">
                     <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
+                    <input type="text" id="createPopupName" name="name" required>
                 </div>
                 <div class="form-group">
                     <label for="description">Description:</label>
-                    <textarea id="description" name="description" required></textarea>
+                    <textarea id="createPopupDescription" name="description" required></textarea>
                 </div>
                 <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div id="editUserPopup"  style="display: none;">
+            <h2>User Form</h2>
+            <form >
+                @csrf
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="editPopupName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="editPopupDescription" name="description" required></textarea>
+                </div>
+                <button type="button" id="saveChangesPopup">Save</button>
+            </form>
+        </div>
+        <div id="viewUserPopup" style="display: none;">
+            <h2>User Form</h2>
+            <form >
+                
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="viewPopupName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="viewPopupDescription" name="description" required></textarea>
+                </div>
+                <!-- <button  onclick="viewPopup()">Hide</button> -->
             </form>
         </div>
     </div>
@@ -137,21 +167,32 @@
 
 
         var table;
-
+        var userId =0;
         function deleteClicked(userId) {
-            console.log(userId);
-            console.log("i am clicked");
-            var csrfToken = "{{ csrf_token() }}";
-            console.log(csrfToken);
+            
+            // var csrfToken = "{{ csrf_token() }}";
+            // console.log(csrfToken);
             $.ajax({
                  url: '/deletecrud/' + userId,
-                type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                },
+                type: 'GET',
+                // data: {
+                //     _token: '{{ csrf_token() }}',
+                // },
                 success: function(response) {
-                    console.log("Response is positive");
-                    $('#user-table').DataTable().row($(this).closest('tr')).remove().draw();
+                     // clear and redraw table after getting new data
+                     table.clear();
+                         table.clear().destroy();
+                         $('#user-table').empty();
+                            
+                            // Reinitialize the DataTable with the updated data
+                            table = $('#user-table').DataTable({
+                                data: response.data,
+                                columns: [
+                                    {data: 'name', name: 'name'},
+                                    {data: 'description', name: 'description'},
+                                    {data: 'action', name: 'action', orderable: false, searchable: false}
+                                ]
+                            });
                 },
                 error: function(xhr, status, error) {
                     // Handle error response
@@ -174,9 +215,9 @@
                     });
                 })
 
-                /// pop ups new user datat entry form
+    /// pop ups new user datat entry form
     $(function () {
-        // Show the popup when Create User button is clicked
+        // Show the popup 
         $('#createUserBtn').on('click', function () {
             $('#createUserPopup').show();
         });
@@ -209,7 +250,6 @@
                 },
                 error: function (xhr, status, error) {
                     // Handle error response
-                    // Show an error message or perform appropriate actions
                 }
             });
             $('#name').val('');
@@ -219,32 +259,108 @@
         });
     });
 
-    
-//     $(document).ready(function() {
-//     $('.btn-delete').on('click', function() {
+    function editClicked(uid){
+        userId = uid;
+            // Perform AJAX request to fetch user data
+            $.ajax({
+                url: '/fetchuserdata/' + userId, // Replace with your route to fetch user data
+                type: 'GET',
+                success: function(response) {
+                    console.log(response);
+                    // Extract the name and description from the response
+                    var name = response.name;
+                    var description = response.description;
+                    
+                    // Populate the popup with the retrieved data
+                    $('#editPopupName').val(name);
+                    $('#editPopupDescription').val(description);
+                    
+                    // Open the popup
+                    $('#editUserPopup').show();
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.log(error);
+                }
+            });
+        }
+
+        function viewClicked(userId){
         
-//         var deleteUrl = $(this).closest('form').attr('action');
+        // Perform AJAX request to fetch user data
+        $.ajax({
+            url: '/fetchuserdata/' + userId, // Replace with your route to fetch user data
+            type: 'GET',
+            success: function(response) {
+                console.log(response);
+                // Extract the name and description from the response
+                var name = response.name;
+                var description = response.description;
+                
+                // Populate the popup with the retrieved data
+                $('#viewPopupName').val(name);
+                $('#viewPopupDescription').val(description);
+                
+                // Open the popup
+                $('#viewUserPopup').show();
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.log(error);
+            }
+        });
+    }
 
-//         $.ajax({
-//             url: deleteUrl,
-//             // type: 'DELETE',
-//             data: {
-//                 _token: '{{ csrf_token() }}',
-//             },
-//             success: function(response) {
-//                 // Handle success response
-//                 // Remove the deleted row from the table
-//                 $('#user-table').DataTable().row($(this).closest('tr')).remove().draw();
-//             },
-//             error: function(xhr, status, error) {
-//                 // Handle error response
-//                 console.log(error);
-//             }
-//         });
-//     });
-// });
+    // function viewPopup(){
+    //     // Close the popup
+    //     $('#viewUserPopup').css('display', 'none');
+
+    // }
 
 
+    $('#saveChangesPopup').click(function() {
+        // Get the updated values from the input fields in the popup
+        var newName = $('#editPopupName').val();
+        var newDescription = $('#editPopupDescription').val();
+        console.log(userId);
+
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        // Make an AJAX request to save the changes
+        $.ajax({
+            url: '/updateuser/' + userId,
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            data: {
+                //id: userId, // Assuming you have the user ID stored in a variable
+                name: newName,
+                description: newDescription
+            },
+            success: function(response) {
+                
+                     table.clear();
+                         table.clear().destroy();
+                         $('#user-table').empty();
+                            
+                            // Reinitialize the DataTable with the updated data
+                            table = $('#user-table').DataTable({
+                                data: response.data,
+                                columns: [
+                                    {data: 'name', name: 'name'},
+                                    {data: 'description', name: 'description'},
+                                    {data: 'action', name: 'action', orderable: false, searchable: false}
+                                ]
+                            });
+
+                $('#editUserPopup').hide();
+            },
+            error: function(xhr, status, error) {
+                // Handle the error response
+                console.log('Error saving changes:', error);
+            }
+        });
+    });
 
 
 </script>

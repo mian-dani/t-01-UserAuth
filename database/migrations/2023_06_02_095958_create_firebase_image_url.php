@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cruds', function (Blueprint $table) {
+        Schema::create('firebase_image_url', function (Blueprint $table) {
             $table->id();
-            $table->string('name',20);
-            $table->string('description',200);
-            $table->string('ip',40);
+            $table->string('url');
             $table->timestamps();
         });
     }
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cruds');
+        Schema::dropIfExists('firebase_image_url');
     }
 };

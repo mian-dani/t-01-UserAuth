@@ -17,13 +17,16 @@ use App\Http\Controllers\CrudapiController;
 
 
 
-Route::get('/allemployee', [CrudapiController::class, 'index']);
-Route::get('/employee/{id}', [CrudapiController::class, 'show']);
-Route::post('/addemployee', [CrudapiController::class, 'store']);
-Route::put('/updateemployee/{id}', [CrudapiController::class, 'update']);
-Route::delete('/deleteemployee/{id}', [CrudapiController::class, 'destroy']);
+
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+Route::get('/allemployee', [CrudapiController::class, 'index']);
+Route::get('/employee/{id}', [CrudapiController::class, 'show']);
+Route::post('/addemployee', [CrudapiController::class, 'store']);
+Route::put('/updateemployee/{id}', [CrudapiController::class, 'update']);
+Route::delete('/deleteemployee/{id}', [CrudapiController::class, 'destroy']);
