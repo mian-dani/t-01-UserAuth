@@ -9,4 +9,9 @@ class Country extends Model
 {
     protected $table = 'countries_names';
     use HasFactory;
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'country_id', 'name');
+    }
 }

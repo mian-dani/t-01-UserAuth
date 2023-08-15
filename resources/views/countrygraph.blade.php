@@ -37,24 +37,7 @@
         </script>
 
     
-    <!-- <script>
-    window.addEventListener('DOMContentLoaded', (event) => {
-        // Get the data passed from the controller
-        var data = @json($data);
-
-        // Options for the chart
-        var options = {
-            data: [{
-                type: "column",
-                dataPoints: data
-            }]
-        };
-
-        // Render the chart
-        var chart = new CanvasJS.Chart("chartContainer", options);
-        chart.render();
-    });
-    </script> -->
+    
 
     
 </body>

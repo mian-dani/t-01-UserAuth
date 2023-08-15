@@ -7,14 +7,23 @@ use Illuminate\Http\Request;
 
 class CrudapiController extends Controller
 {
+
+
     public function index(Request $request){
         $employee = Employee::all();
         return response()->json($employee);
     }
+
+
+
+
     public function show(Request $request, $id){
         $emp = Employee::findOrFail($id);
         return response()->json($emp);
     }
+
+
+
     public function store(Request $request){
         $request->validate([
             'name'=>'required',
@@ -31,6 +40,16 @@ class CrudapiController extends Controller
         
         return response()->json("User Created Successfully", 201);
     }
+
+
+
+
+
+
+
+
+
+
     public function update(Request $request, $id){
             $emp = Employee::findOrFail($id);
 
@@ -49,6 +68,9 @@ class CrudapiController extends Controller
 
             return response()->json("User updated successfully", $emp);
     }
+
+
+    
     public function destroy(Request $request, $id){
         $product = Employee::findOrFail($id);
         $product->delete();

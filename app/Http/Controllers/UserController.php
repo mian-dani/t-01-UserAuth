@@ -20,9 +20,24 @@ use Illuminate\Support\Facades\Queue;
 
 class UserController extends Controller
 {
+
+
+
+
+
+
     public function login(Request $request){
          return view('login');
     }
+
+
+
+
+
+
+
+
+
 
     public function loginuser(Request $request){
         $request->validate([
@@ -30,12 +45,9 @@ class UserController extends Controller
             'password' => 'required',
         ]);
         
-
-        //login code
         if(\Auth::attempt($request->only('email','password'))){
             $user = Auth::user();
-             // Inside your UserController or other relevant code
-             $user = User::find(1); // Get the user instance
+             $user = User::find(1); 
 
              Queue::push(new WelcomeEmail($user));
             $success['token'] = $user->createToken('MyApp')->plainTextToken;
@@ -45,68 +57,59 @@ class UserController extends Controller
                 'data' => $success,
                 'message' => "user registered successfully"
             ];
-            
-
-           
-
             return response()->json($response, 200);
             return redirect('table');
         }
-
         return redirect('login')->withError('Login not successful');
     }
 
+
+
+
+
+
+
     public function register(){
-        return view('register');
+        $countries = Country::query()->get();
+        return view('register', compact('countries'));
     }
 
+
+
+
     public function registeruser(Request $request){
-        //validation
         $request->validate([
             'name'=>'required',
             'email' => 'required|unique:users,email',
             'password'=>'required',
             'phone'=>'required',
+            'country'=> 'required',
         ]);
+        
         $registeredUser = User::create([
             'name'=>$request->name,
             'email'=>$request->email,
             'password'=> \Hash::make($request->password),
             'phone'=>$request->phone,
-            'country'=>$request->country,
+            'country_id'=>$request->country,
+            'ip'=>$request->ip(),
+            'image'=>$request->input('image_url'),
+            
         ]);
-        
-        
-        // $user = User::find(1); // Get the user instance
-
-        // // Send the email
-        // Mail::to($user->email)->send(new WelcomeMail($user));
-
-
         $user = Auth::user();
-        // $success['token'] = $user->createToken('MyApp')->plainTextToken;
-        // $success['name'] = $user->name;
-
-        // $response = [
-        //     'success'=> true,
-        //     'data' => $success,
-        //     'message' => "user registered successfully"
-        // ];
-        Mail::to($request->input('email'))->send(new WelcomeMail($request->input('name')));
-        // return response()->json($response, 200);
-
-        //if user successfully registered then also login
         if(\Auth::attempt($request->only('email','password'))){
-            return redirect('table');
+             return redirect()->back()->with('success', 'User created successfully');
         }
-        
         return redirect('register');
     }
+
 
 
     public function table(){
         return view('table');
     }
+
+
 
     public function logout(){
         \Session::flush();
@@ -114,79 +117,86 @@ class UserController extends Controller
         return redirect('register');
     }
 
+
+
+
+
+
+
     public function userdetails(){
-         
         $id=  Auth::user()->id;
         $email= Auth::user()->email;
-        
         $users = User::where('id', $id)->get();
-        // foreach($u as $us){
-            
-        //     $name= $us->name;
-        //     dd($name);
-        // }
-        //  dd($users->name);
-        // return view('userdetails', compact('users'));
         return view('userdetails')->with('users', $users);
-         
     }
+
+
+
+
+
+
 
     public function userdetailsyajra(Request $request){
-
         $id=  Auth::user()->id;
-        
-
              if ($request->ajax()) {
                 $data = User::query()->where('id', $id)->select(['name', 'email', 'phone', 'country']);
-                
-                 return DataTables::of($data)->addIndexColumn()->make(true);
-                
+                 return DataTables::of($data)->addIndexColumn()->make(true);  
              }
               return view('userdetailsyajra');
-        
     }
 
+
+
+
+
     public function countrygraph(){
-         
-             // Fetch the data needed for the graph
-             $usersByCountry = User::select('country', DB::raw('count(*) as total'))
-                 ->groupBy('country')
+             $usersByCountry = User::select('country_id', DB::raw('count(*) as total'))
+                 ->groupBy('country_id')
                  ->get();
-         
-             // Prepare the data in the required format for the graph
              $data = [];
              foreach ($usersByCountry as $user) {
+                $c = Country::select(['name'])->where('id', $user->country_id)->first();
                  $data[] = [
-                     'label' => $user->country,
+                    'label' => $c->name,
                      'y' => $user->total,
                  ];
              }
-         
-             // Pass the data to the view
              return view('countrygraph', compact('data'));
          }
          
+
+
+
+
+
     public function chartuserdetail(Request $request){
         $country = $request->query('country');
-        $users = User::where('country', $country)->get();
+        $cid = Country::select(['id'])->where('name', $country)->first();
+        
+        $users = User::select(['name', 'email', 'phone', 'country_id'])->where('country_id', $cid->id)->get();
+        $cIdToReplaceIdWithName;
+        foreach ($users as $user) {
+            $cIdToReplaceIdWithName = $user->country_id;
+        }
+        
+        $c = Country::select(['name'])->where('id', $cIdToReplaceIdWithName)->first();
         $data = [
-            'users' => $users
+            'users' => $users,
         ];
         if ($request->expectsJson()) {
             return response()->json($data);
         }
-        return view('chartuserdetail', compact('data'));
+        return view('chartuserdetail', compact('data', 'c'));
     }
     
 
+
+
+
+
     public function allusers(Request $request){
-        
-        
         if ($request->ajax()) {
             $query = User::query();
-            
-            
-            // Apply filters
             if ($request->filled('country')) {
                 $query->where('country', $request->country)->select(['name', 'email', 'phone', 'country']);
             }
@@ -203,14 +213,17 @@ class UserController extends Controller
                 ->addIndexColumn()
                 ->make(true);
         }
-        
         return view('allusers');
     }
 
    
 
+
+
+
+
     public function dailyuserregistration(){
-        $startDate = Carbon::now()->subDays(30); // Retrieve data for the last 7 days
+        $startDate = Carbon::now()->subDays(30);
         $endDate = Carbon::now();
 
         $userRegistrations = User::select('created_at')
@@ -226,11 +239,26 @@ class UserController extends Controller
         return view('dailyuserregistration', compact('userRegistrations'));
     }
 
+
+
+
+
+    public function crudfunctionsview(Request $request){
+        $countries = Country::query()->get();
+        return view('crudfunctions', compact('countries'));
+    }
+
+
+
+
+
+
+
+
     public function crudfunctions(Request $request)
     {
-    
         if ($request->ajax()) {
-            $query = Crud::query();
+            $query = User::query();
             $users = $query->get();
 
             return DataTables::of($users)->addIndexColumn()
@@ -243,108 +271,154 @@ class UserController extends Controller
                 })->rawColumns(['action'])
                 ->make(true);
 
-
-                // ->addIndexColumn()
-                // ->make(true);
         }
     
-        return view('crudfunctions') ;
+        return view('crudfunctions');
     }
 
-    // public function createuser(Request $request)
-    // {
-    //     return view('createuser');
-    //     // $user = User::create($request->all());
-    //     // return response()->json(['data' => $user], 201);
-    // }
 
+
+
+
+    // is ka kam ab register method kr rha ha 
     public function create(Request $request){
        
         // Validate the incoming request data
         $validatedData = $request->validate([
-            'name' => 'required|string|max:20',
-            'description' => 'required|string',
+            'name'=>'required',
+            'email' => 'required|unique:users,email',
+            'phone'=>'required',
+            'country'=> 'required',
         ]);
 
-        // Create a new user instance
-        $user = new Crud();
-        $user->name = $validatedData['name'];
-        $user->description = $validatedData['description'];
-        $ipAddress = $request->ip();
-        $user->ip = $ipAddress;
+       
+            $registeredUser = User::create([
+                'name'=>$request->name,
+                'email'=>$request->email,
+                'password'=> \Hash::make($request->password),
+                'phone'=>$request->phone,
+                'country_id'=>$request->country,
+                'ip'=>$request->ip(),
+                'image'=>$request->input('image_url'),
+                
+            ]);
+            
+        $users = User::select(['id', 'name', 'email', 'phone', 'country_id'])
+        ->get();
 
-        // Save the user to the database
-        $user->save();
-        return redirect()->back()->with('success', 'User created successfully');
-        
+        return DataTables::of($users)->addIndexColumn()
+                ->addColumn('action', function ($user) {
+                     return '
+                        <button onclick="viewClicked(' . $user->id . ')" id="viewUserBtn" class="btn btn-view">View</button>
+                        <button onclick="editClicked(' . $user->id . ')" id="editUserBtn" class="btn btn-edit">Edit</button>
+                        <button onclick="deleteClicked(' . $user->id . ')"  id="deleteCrud" type="button" class="btn btn-delete">Delete</button>
+                    ';
+                })->rawColumns(['action'])
+                ->make(true);
     }
 
     
 
-    public function delete($id){
-      
-        $user = Crud::findOrFail($id);
-        
-        $user->delete();
-        return redirect()->back()->with('success', 'User deleted');
 
+
+    // this method is deleting user from Yajra table
+    public function delete($id){
+        $user = User::findOrFail($id);
+        $user->delete();
+        $users = User::select(['id', 'name', 'email', 'phone', 'country_id'])
+        ->get();
+
+        return DataTables::of($users)->addIndexColumn()
+                ->addColumn('action', function ($user) {
+                     return '
+                        <button onclick="viewClicked(' . $user->id . ')" id="viewUserBtn" class="btn btn-view">View</button>
+                        <button onclick="editClicked(' . $user->id . ')" id="editUserBtn" class="btn btn-edit">Edit</button>
+                        <button onclick="deleteClicked(' . $user->id . ')"  id="deleteCrud" type="button" class="btn btn-delete">Delete</button>
+                    ';
+                })->rawColumns(['action'])
+                ->make(true);
     }
+
+
+
 
     public function fetchuserdata($id){
         
-                $user = Crud::find($id);
+                $user = User::find($id);
 
                 $data = [
                     'name' => $user->name,
-                    'description' => $user->description,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'country' => $user->country_id,
                 ];
                 
                 return response()->json($data);
-            
     }
+
+
+
+
+
+
 
     public function updateuser(Request $request, $id)
         {
-            // $userId = $request->input('id');
             $newName = $request->input('name');
-            $newDescription = $request->input('description');
+            $newEmail = $request->input('email');
+            $newPhone = $request->input('phone');
+            $newCountry = $request->input('country');
+            
+            $user = User::find($id);
 
-            // Find the user by ID
-            $user = Crud::find($id);
-
-            // if (!$user) {
-            //     // User not found, handle the error
-            //     return response()->json(['error' => 'User not found'], 404);
-            // }
-
-            // Update the user data
             $user->name = $newName;
-            $user->description = $newDescription;
+            $user->email = $newEmail;
+            $user->phone = $newPhone;
+            $user->country_id = $newCountry;
+            $user->ip = $request->ip();
             $user->save();
 
-            // Return a success response
-            return redirect()->back()->with('success', 'User deleted');
+            $users = User::select(['id', 'name', 'email', 'phone', 'country_id'])
+            ->get();
+    
+            return DataTables::of($users)->addIndexColumn()
+                    ->addColumn('action', function ($user) {
+                         return '
+                            <button onclick="viewClicked(' . $user->id . ')" id="viewUserBtn" class="btn btn-view">View</button>
+                            <button onclick="editClicked(' . $user->id . ')" id="editUserBtn" class="btn btn-edit">Edit</button>
+                            <button onclick="deleteClicked(' . $user->id . ')"  id="deleteCrud" type="button" class="btn btn-delete">Delete</button>
+                        ';
+                    })->rawColumns(['action'])
+                    ->make(true);
         }
+
+
+
+
+
+
+
+
 
 
     public function show($id)
     {
-        // $user = Crud::findOrFail($id);
-        // return response()->json(['data' => $user]);
         $user = Crud::query($id)->where('id', $id)->select(['name', 'description'])->first();
-
         return view('crudview', compact('user'));
     }
 
+
+
+
+
+
+
     public function crudupdate(Request $request, $id){
-  
-        // Validate the form data
         $validatedData = $request->validate([
             'name' => 'required',
             'description' => 'required',
         ]);
 
-        // Find the user by ID
         $user = Crud::findOrFail($id);
 
         // Update the user data
@@ -352,15 +426,31 @@ class UserController extends Controller
         $user->description = $validatedData['description'];
         $user->save();
         return ("Data Updated successfully");
-        // Redirect to the view page or wherever you want
-        // return redirect()->route('', $user->id)->with('success', 'User updated successfully');
   
     }
+
+
+
+
+
+
+
+
+
+
 
     public function crudedit(Request $request, $id){
         $user = Crud::query($id)->where('id', $id)->select(['id', 'name', 'description'])->first();
         return view('crudedit', compact('user'));
     }
+
+
+
+
+
+
+
+
 
     public function crudngraphs(){
 
@@ -379,43 +469,58 @@ class UserController extends Controller
             });
 
             //country graph data 
+            $usersByCountry = User::select('country_id', DB::raw('count(*) as total'))
+                ->groupBy('country_id')
+                ->get();
+        
+            // Prepare the data in the required format for the graph
+            $data = [];
+            foreach ($usersByCountry as $user) {
+            $c = Country::select(['name'])->where('id', $user->country_id)->first();
+                $data[] = [
+                //  'label' => $user->country_id,
+                'label' => $c->name,
+                    'y' => $user->total,
+                ];
+            }
              
-             $usersByCountry = User::select('country', DB::raw('count(*) as total'))
-                 ->groupBy('country')
-                 ->get();
-         
-             // Prepare the data in the required format for the graph
-             $data = [];
-             foreach ($usersByCountry as $user) {
-                 $data[] = [
-                     'label' => $user->country,
-                     'y' => $user->total,
-                 ];
-             }
+           
 
              // crud functions view 
              $users = Crud::query()->get();
-            
-        return view('crudngraphs', compact('userRegistrations', 'data', 'users'));
+             $countries = Country::query()->get();
 
+            
+        return view('crudngraphs', compact('userRegistrations', 'data', 'users', 'countries'));
         
     }
+
+
+
+
+
+
+
 
     public function email(){
         return view('email');
     }
 
+
+
+
+
+
+
+
+
     public function getcountries(Request $request){
 
-                $url = 'https://restcountries.com/v3.1/all';
+        $url = 'https://restcountries.com/v3.1/all';
 
         $response = file_get_contents($url);
-        
         if ($response === false) {
-            // Handle error
-            // Error handling logic goes here
         } else {
-            // Process the response
             $countries = json_decode($response, true);
 
             foreach ($countries as $country){
@@ -427,7 +532,6 @@ class UserController extends Controller
                     if(isset($country['currencies'][$changingCurrency]['symbol'])){
                         $symbol = $country['currencies'][$changingCurrency]['symbol'];
                     }
-                    
                 }else{
                     continue;
                 }
@@ -440,16 +544,12 @@ class UserController extends Controller
                 $countryModel->symbol = $symbol;
                 $countryModel->flagurl = $flagUrl;
                 $countryModel->save();
-            
             }
-            
-
-            
         }
-
     }
         
         
+    
     
     
     public function getcountriesview(){

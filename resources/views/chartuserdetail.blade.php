@@ -14,7 +14,6 @@
 <table id="user-table" class="table">
         <thead>
             <tr>
-               
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -25,11 +24,10 @@
             <!-- Loop through the users and generate the table rows -->
             @foreach ($data['users'] as $user)
                 <tr>
-                    
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->phone }}</td>
-                    <td>{{ $user->country }}</td>
+                    <td>{{ $c->name }}</td>
                 </tr>
             @endforeach
         </tbody>

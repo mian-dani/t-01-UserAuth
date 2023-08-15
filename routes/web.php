@@ -43,9 +43,9 @@ Route::get('/allusers', [UserController::class, 'allusers'])->name('allusers');
 // 
 
 
-
+Route::get('/crudfunctionsview', [UserController::class, 'crudfunctionsview'])->name('crudfunctionsview');
 Route::get('/crudfunctions', [UserController::class, 'crudfunctions'])->name('crudfunctions');
-Route::get('/createuser', [UserController::class, 'createuser'])->name('createuser');
+// Route::get('/createuser', [UserController::class, 'createuser'])->name('createuser');
 //Route::post('/useradded', [UserController::class, 'useradded'])->name('useradded');
 Route::get('/crudedit/{id}', [UserController::class, 'crudedit'])->name('crudedit');
 Route::get('/crudshow/{id}', [UserController::class, 'crudedit'])->name('crudshow'); // wese hi bnaya ha abhi
@@ -63,8 +63,8 @@ Route::get('/users/{id}', [UserController::class, 'edit'])->name('users.edit');
 Route::get("/email", [UserController::class, 'email'])->name('email');
 
 // these routes are to perform crud operatons on yajra table
-Route::post('/users', [UserController::class, 'create'])->name('users.create');
-Route::get("/deletecrud/{id}", [UserController::class, 'delete'])->name('deletecrud');
+Route::POST('/users', [UserController::class, 'create'])->name('users.create');
+Route::POST("/deletecrud/{id}", [UserController::class, 'delete'])->name('deletecrud');
 Route::get("/fetchuserdata/{id}", [UserController::class, 'fetchuserdata'])->name('fetchuserdata');
 Route::post("/updateuser/{id}", [UserController::class, 'updateuser'])->name('updateuser');
 Route::get('/crudngraphs', [UserController::class, 'crudngraphs'])->name('crudngraphs');
