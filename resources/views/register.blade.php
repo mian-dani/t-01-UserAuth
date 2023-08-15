@@ -105,15 +105,7 @@
 
            // Initialize Firebase app
            const firebaseConfig = {
-           apiKey: "AIzaSyCsJALsE6AEPvhLKo1HUYSPyzyo-0yQ6oU",
-           authDomain: "t-1-userauth.firebaseapp.com",
-           // databaseURL: "https://t-1-userh-default-rtdb.firebaseio.com",
-           projectId: "t-1-userauth",
-           storageBucket: "t-1-userauth.appspot.com",
-           // messagingSenderId: "5823983",
-           appId: "1:58239891333:web:f13a680d6254e91296f6ec",
-           
-           };
+           apiKey:
            firebase.initializeApp(firebaseConfig);
 
            var imageUploadPath = firebase.storage().ref('images/' + img);
